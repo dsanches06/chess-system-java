@@ -102,5 +102,4 @@ public class Queen extends ChessPiece {
 		}
 		return mat;
 	}
-
 }

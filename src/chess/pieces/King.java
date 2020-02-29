@@ -2,13 +2,21 @@ package chess.pieces;
 
 import boardgame.Board;
 import boardgame.Position;
+import chess.ChessMatch;
 import chess.ChessPiece;
 import chess.Color;
 
 public class King extends ChessPiece {
 
-	public King(Board board, Color color) {
+	private ChessMatch chessMatch;
+
+	public King(Board board, Color color, ChessMatch chessMatch) {
 		super(board, color);
+		this.chessMatch = chessMatch;
+	}
+
+	public ChessMatch getChessMatch() {
+		return chessMatch;
 	}
 
 	@Override
@@ -19,6 +27,11 @@ public class King extends ChessPiece {
 	private boolean canMove(Position position) {
 		ChessPiece p = (ChessPiece) getBoard().piece(position);
 		return p == null || p.getColor() != getColor();
+	}
+
+	private boolean testRookCastling(Position position) {
+		ChessPiece piece = (ChessPiece) getBoard().piece(position);
+		return piece != null && piece instanceof Rook && piece.getColor() == getColor() && piece.getMoveCount() == 0;
 	}
 
 	@Override
@@ -64,6 +77,34 @@ public class King extends ChessPiece {
 		p.setValues(position.getRow() + 1, position.getColumn() + 1);
 		if (getBoard().positionExists(p) && canMove(p)) {
 			mat[p.getRow()][p.getColumn()] = true;
+		}
+		// jogada especial da castling
+		if (getMoveCount() == 0 && !chessMatch.getCheck()) {
+			// jogada especial do rei para torre a direita (kingside rook)
+			Position posT1 = new Position(position.getRow(), position.getColumn() + 3);
+			if (testRookCastling(posT1)) {
+				// testar se as duas casas a direita
+				Position p1 = new Position(position.getRow(), position.getColumn() + 1);
+				Position p2 = new Position(position.getRow(), position.getColumn() + 2);
+				// estiverem vazias
+				if (getBoard().piece(p1) == null && getBoard().piece(p2) == null) {
+					// o rei tambem pode mover duas casas a direita
+					mat[position.getRow()][position.getColumn() + 2] = true;
+				}
+			}
+			// jogada especial do rei para torre a esquerda (queenside rook)
+			Position posT2 = new Position(position.getRow(), position.getColumn() - 4);
+			if (testRookCastling(posT2)) {
+				// testar se as três casas a direita
+				Position p1 = new Position(position.getRow(), position.getColumn() - 1);
+				Position p2 = new Position(position.getRow(), position.getColumn() - 2);
+				Position p3 = new Position(position.getRow(), position.getColumn() - 3);
+				// estiverem vazias
+				if (getBoard().piece(p1) == null && getBoard().piece(p2) == null && getBoard().piece(p3) == null) {
+					// o rei tambem pode mover duas casas a esquerda
+					mat[position.getRow()][position.getColumn() - 2] = true;
+				}
+			}
 		}
 		return mat;
 	}
