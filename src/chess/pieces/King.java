@@ -15,10 +15,6 @@ public class King extends ChessPiece {
 		this.chessMatch = chessMatch;
 	}
 
-	public ChessMatch getChessMatch() {
-		return chessMatch;
-	}
-
 	@Override
 	public String toString() {
 		return "K";
